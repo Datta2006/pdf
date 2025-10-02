@@ -3,472 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document Viewer</title>
+    <title>Doc Reader</title>
     <link rel="manifest" href="manifest.json">
     <style>
-        :root {
-            --primary: #4361ee;
-            --secondary: #3a0ca3;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --success: #4cc9f0;
-            --danger: #f72585;
-            --gray: #6c757d;
-        }
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: var(--dark);
-            min-height: 100vh;
-            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
         }
         
         .container {
             max-width: 100%;
-            margin: 0 auto;
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            color: white;
-        }
-        
-        h1 {
-            font-size: 2.2rem;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        
-        .subtitle {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-        
-        .app-card {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            overflow: hidden;
-            margin-bottom: 30px;
-        }
-        
-        .tabs {
+            height: 100vh;
             display: flex;
-            background: var(--light);
-            border-bottom: 1px solid #dee2e6;
+            flex-direction: column;
         }
         
-        .tab {
-            flex: 1;
-            padding: 15px;
-            text-align: center;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            border-bottom: 3px solid transparent;
-        }
-        
-        .tab.active {
-            border-bottom: 3px solid var(--primary);
-            color: var(--primary);
-        }
-        
-        .tab-content {
-            display: none;
-            padding: 25px;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .file-input-container {
-            margin-bottom: 20px;
-        }
-        
-        .file-input-label {
-            display: block;
-            background: var(--primary);
+        .header {
+            background: #2c3e50;
             color: white;
-            padding: 15px 20px;
-            border-radius: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        
-        .file-input-label:hover {
-            background: var(--secondary);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
-        }
-        
-        #file-input {
-            display: none;
-        }
-        
-        .file-info {
-            margin-top: 20px;
             padding: 15px;
-            background: var(--light);
-            border-radius: 10px;
-            display: none;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 500;
         }
         
-        .file-info.show {
-            display: block;
-            animation: fadeIn 0.5s;
-        }
-        
-        .document-viewer {
-            margin-top: 20px;
-            min-height: 400px;
-            border: 1px solid #dee2e6;
-            border-radius: 10px;
-            padding: 20px;
+        .viewer {
+            flex: 1;
             background: white;
+            margin: 10px;
+            border-radius: 8px;
+            padding: 20px;
             overflow: auto;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: #7f8c8d;
+            margin-top: 50px;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
         }
         
         .document-content {
             white-space: pre-wrap;
-            font-family: 'Courier New', monospace;
             line-height: 1.6;
         }
         
-        .pdf-viewer {
+        .pdf-frame {
             width: 100%;
-            height: 500px;
+            height: 100%;
             border: none;
-            border-radius: 10px;
         }
         
-        .unsupported-format {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--gray);
+        .file-input {
+            display: none;
         }
         
-        .unsupported-format i {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            color: var(--danger);
-        }
-        
-        .supported-formats {
-            margin-top: 30px;
-            padding: 20px;
-            background: var(--light);
-            border-radius: 10px;
-        }
-        
-        .formats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-        
-        .format-item {
-            text-align: center;
-            padding: 15px 10px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        
-        .format-icon {
-            font-size: 2rem;
-            margin-bottom: 10px;
-            color: var(--primary);
-        }
-        
-        .instructions {
-            margin-top: 30px;
-            padding: 20px;
-            background: rgba(255,255,255,0.9);
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .instructions h3 {
-            margin-bottom: 15px;
-            color: var(--primary);
-        }
-        
-        .instructions ol {
-            padding-left: 20px;
-        }
-        
-        .instructions li {
-            margin-bottom: 10px;
-        }
-        
-        .offline-status {
+        .open-btn {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            padding: 10px 15px;
-            border-radius: 50px;
-            font-weight: bold;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-            z-index: 1000;
-        }
-        
-        .online {
-            background: var(--success);
+            width: 60px;
+            height: 60px;
+            background: #3498db;
             color: white;
-        }
-        
-        .offline {
-            background: var(--danger);
-            color: white;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            .tab-content {
-                padding: 15px;
-            }
-            
-            .formats-grid {
-                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            }
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>Document Viewer</h1>
-            <p class="subtitle">View PDF, DOC, PPT, ODT files offline</p>
-        </header>
+        <div class="header">Document Reader</div>
         
-        <div class="app-card">
-            <div class="tabs">
-                <div class="tab active" data-tab="open">Open Document</div>
-                <div class="tab" data-tab="recent">Recent Files</div>
-                <div class="tab" data-tab="help">Help</div>
-            </div>
-            
-            <div class="tab-content active" id="open-tab">
-                <div class="file-input-container">
-                    <label for="file-input" class="file-input-label">
-                        <i class="fas fa-folder-open"></i> Choose Document
-                    </label>
-                    <input type="file" id="file-input" accept=".pdf,.doc,.docx,.ppt,.pptx,.odt,.txt,.rtf">
-                </div>
-                
-                <div class="file-info" id="file-info">
-                    <p><strong>File Name:</strong> <span id="file-name"></span></p>
-                    <p><strong>File Size:</strong> <span id="file-size"></span></p>
-                    <p><strong>File Type:</strong> <span id="file-type"></span></p>
-                </div>
-                
-                <div class="document-viewer" id="document-viewer">
-                    <div style="text-align: center; padding: 50px 20px; color: #6c757d;">
-                        <i class="fas fa-file" style="font-size: 3rem; margin-bottom: 15px;"></i>
-                        <p>Select a document to view its content</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="tab-content" id="recent-tab">
-                <div class="document-viewer">
-                    <div style="text-align: center; padding: 50px 20px; color: #6c757d;">
-                        <i class="fas fa-history" style="font-size: 3rem; margin-bottom: 15px;"></i>
-                        <p>No recent documents</p>
-                        <p style="font-size: 0.9rem; margin-top: 10px;">Documents you open will appear here</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="tab-content" id="help-tab">
-                <div class="supported-formats">
-                    <h3>Supported Formats</h3>
-                    <div class="formats-grid">
-                        <div class="format-item">
-                            <div class="format-icon"><i class="fas fa-file-pdf"></i></div>
-                            <div>PDF</div>
-                        </div>
-                        <div class="format-item">
-                            <div class="format-icon"><i class="fas fa-file-word"></i></div>
-                            <div>DOC/DOCX</div>
-                        </div>
-                        <div class="format-item">
-                            <div class="format-icon"><i class="fas fa-file-powerpoint"></i></div>
-                            <div>PPT/PPTX</div>
-                        </div>
-                        <div class="format-item">
-                            <div class="format-icon"><i class="fas fa-file-alt"></i></div>
-                            <div>ODT</div>
-                        </div>
-                        <div class="format-item">
-                            <div class="format-icon"><i class="fas fa-file-text"></i></div>
-                            <div>TXT</div>
-                        </div>
-                        <div class="format-item">
-                            <div class="format-icon"><i class="fas fa-file"></i></div>
-                            <div>RTF</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="instructions">
-                    <h3>How to use this app</h3>
-                    <ol>
-                        <li>Download this page to your device (use "Save Page As" in your browser)</li>
-                        <li>Open the downloaded HTML file in your browser</li>
-                        <li>The app will work completely offline - no internet connection needed</li>
-                        <li>To open documents from WhatsApp, use the "Open with" option and select this app</li>
-                    </ol>
-                </div>
+        <div class="viewer" id="viewer">
+            <div class="empty-state">
+                <div>📄</div>
+                <p>No document opened</p>
+                <p style="font-size: 14px; margin-top: 10px;">Tap + to open a document</p>
             </div>
         </div>
         
-        <div class="offline-status" id="offline-status">Online</div>
+        <button class="open-btn" onclick="document.getElementById('fileInput').click()">+</button>
+        <input type="file" id="fileInput" class="file-input" accept=".pdf,.doc,.docx,.ppt,.pptx,.odt,.txt,.rtf">
     </div>
 
-    <!-- Include Font Awesome for icons -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
-
     <script>
-        // Tab functionality
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                // Remove active class from all tabs and contents
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                // Add active class to clicked tab
-                tab.classList.add('active');
-                
-                // Show corresponding content
-                const tabId = tab.getAttribute('data-tab');
-                document.getElementById(`${tabId}-tab`).classList.add('active');
-            });
-        });
-        
-        // Check online/offline status
-        window.addEventListener('online', updateOnlineStatus);
-        window.addEventListener('offline', updateOnlineStatus);
-        
-        function updateOnlineStatus() {
-            const statusElement = document.getElementById('offline-status');
-            if (navigator.onLine) {
-                statusElement.textContent = 'Online';
-                statusElement.className = 'offline-status online';
-            } else {
-                statusElement.textContent = 'Offline';
-                statusElement.className = 'offline-status offline';
-            }
-        }
-        
-        // Initialize
-        updateOnlineStatus();
-        
-        // File input handling
-        const fileInput = document.getElementById('file-input');
-        const fileInfo = document.getElementById('file-info');
-        const fileName = document.getElementById('file-name');
-        const fileSize = document.getElementById('file-size');
-        const fileType = document.getElementById('file-type');
-        const documentViewer = document.getElementById('document-viewer');
+        const fileInput = document.getElementById('fileInput');
+        const viewer = document.getElementById('viewer');
         
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
             
-            // Display file info
-            fileName.textContent = file.name;
-            fileSize.textContent = formatFileSize(file.size);
-            fileType.textContent = file.type || getFileTypeFromExtension(file.name);
-            fileInfo.classList.add('show');
-            
-            // Process the file
-            processFile(file);
+            openDocument(file);
         });
         
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
-        
-        function getFileTypeFromExtension(filename) {
-            const ext = filename.split('.').pop().toLowerCase();
-            const types = {
-                'pdf': 'PDF Document',
-                'doc': 'Microsoft Word Document',
-                'docx': 'Microsoft Word Document',
-                'ppt': 'Microsoft PowerPoint Presentation',
-                'pptx': 'Microsoft PowerPoint Presentation',
-                'odt': 'OpenDocument Text',
-                'txt': 'Text File',
-                'rtf': 'Rich Text Format'
-            };
-            return types[ext] || 'Unknown File Type';
-        }
-        
-        function processFile(file) {
+        function openDocument(file) {
             const reader = new FileReader();
             
             reader.onload = function(e) {
                 const content = e.target.result;
                 
-                // Display content based on file type
                 if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
-                    displayPDF(content, file.name);
-                } else if (file.type.includes('word') || 
-                          file.type.includes('document') || 
-                          file.name.toLowerCase().endsWith('.doc') || 
-                          file.name.toLowerCase().endsWith('.docx')) {
-                    displayTextDocument(content, file.name, 'word');
-                } else if (file.type.includes('powerpoint') || 
-                          file.type.includes('presentation') || 
-                          file.name.toLowerCase().endsWith('.ppt') || 
-                          file.name.toLowerCase().endsWith('.pptx')) {
-                    displayTextDocument(content, file.name, 'powerpoint');
-                } else if (file.type.includes('opendocument.text') ||
-                          file.name.toLowerCase().endsWith('.odt')) {
-                    displayTextDocument(content, file.name, 'odt');
-                } else if (file.type === 'text/plain' || 
-                          file.name.toLowerCase().endsWith('.txt')) {
-                    displayTextDocument(content, file.name, 'text');
-                } else if (file.type.includes('rtf') || 
-                          file.name.toLowerCase().endsWith('.rtf')) {
-                    displayTextDocument(content, file.name, 'rtf');
+                    showPDF(content);
                 } else {
-                    displayUnsupportedFormat(file.name);
+                    showText(content);
                 }
             };
             
-            // Read the file based on its type
             if (file.type === 'application/pdf') {
                 reader.readAsDataURL(file);
             } else {
@@ -476,92 +132,28 @@
             }
         }
         
-        function displayPDF(content, fileName) {
-            documentViewer.innerHTML = `
-                <h3 style="margin-bottom: 15px;">${fileName}</h3>
-                <p style="margin-bottom: 15px;">PDF files can be viewed using the embedded viewer below:</p>
-                <iframe class="pdf-viewer" src="${content}"></iframe>
-                <p style="margin-top: 15px; font-size: 0.9rem; color: #6c757d;">
-                    Note: Some PDF features may not display correctly in the embedded viewer.
-                </p>
-            `;
+        function showPDF(content) {
+            viewer.innerHTML = `<iframe class="pdf-frame" src="${content}"></iframe>`;
         }
         
-        function displayTextDocument(content, fileName, type) {
-            let icon = 'fas fa-file-alt';
-            let typeName = 'Document';
-            
-            if (type === 'word') {
-                icon = 'fas fa-file-word';
-                typeName = 'Word Document';
-            } else if (type === 'powerpoint') {
-                icon = 'fas fa-file-powerpoint';
-                typeName = 'PowerPoint Presentation';
-            } else if (type === 'odt') {
-                icon = 'fas fa-file-alt';
-                typeName = 'OpenDocument Text';
-            } else if (type === 'text') {
-                icon = 'fas fa-file-text';
-                typeName = 'Text File';
-            } else if (type === 'rtf') {
-                icon = 'fas fa-file';
-                typeName = 'Rich Text File';
+        function showText(content) {
+            viewer.innerHTML = `<div class="document-content">${content}</div>`;
+        }
+        
+        // PWA Installation
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(() => console.log('Service Worker Registered'))
+                .catch(err => console.log('Service Worker Failed', err));
+        }
+        
+        // Handle file opening from other apps
+        window.addEventListener('load', () => {
+            // This would handle files shared from other apps
+            if (window.location.search.includes('file=')) {
+                // File opening logic for PWA
+                console.log('File opened from another app');
             }
-            
-            documentViewer.innerHTML = `
-                <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                    <i class="${icon}" style="font-size: 2rem; color: #4361ee; margin-right: 10px;"></i>
-                    <div>
-                        <h3 style="margin: 0;">${fileName}</h3>
-                        <p style="margin: 0; color: #6c757d; font-size: 0.9rem;">${typeName}</p>
-                    </div>
-                </div>
-                <div class="document-content" style="background: #f8f9fa; padding: 20px; border-radius: 10px; max-height: 400px; overflow: auto;">
-                    ${escapeHtml(content)}
-                </div>
-            `;
-        }
-        
-        function displayUnsupportedFormat(fileName) {
-            documentViewer.innerHTML = `
-                <div class="unsupported-format">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <h3>Unsupported Format</h3>
-                    <p>Sorry, the file format of "${fileName}" is not supported.</p>
-                    <p>Please try with a PDF, DOC, DOCX, PPT, PPTX, ODT, TXT, or RTF file.</p>
-                </div>
-            `;
-        }
-        
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        
-        // Handle file opening from URL parameters (for "Open with" functionality)
-        function checkUrlForFile() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const fileUrl = urlParams.get('file');
-            
-            if (fileUrl) {
-                // In a real PWA, you would fetch and process the file here
-                console.log('File to open:', fileUrl);
-                // For demonstration, we'll just show a message
-                documentViewer.innerHTML = `
-                    <div style="text-align: center; padding: 50px 20px;">
-                        <i class="fas fa-external-link-alt" style="font-size: 3rem; color: #4361ee; margin-bottom: 15px;"></i>
-                        <h3>File Opening</h3>
-                        <p>This would open: ${fileUrl}</p>
-                        <p>In a fully implemented PWA, the document would be displayed here.</p>
-                    </div>
-                `;
-            }
-        }
-        
-        // Check for files in URL on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            checkUrlForFile();
         });
     </script>
 </body>
